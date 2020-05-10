@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    Kotlin中的作用域函数 |
+    
+    OOOOONLY</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  <article id="post-Kotlin中的作用域函数" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+  
+    <h1 class="article-title" itemprop="name">
+      Kotlin中的作用域函数
+    </h1>
+  
+  
+
+
+
+
+            </header>
+            
+
+                
+                    <div class="article-meta">
+                        <a href="/2020/05/10/Kotlin%E4%B8%AD%E7%9A%84%E4%BD%9C%E7%94%A8%E5%9F%9F%E5%87%BD%E6%95%B0/" class="article-date">
+  <time datetime="2020-05-10T07:26:29.000Z" itemprop="datePublished">2020-05-10</time>
+</a>
+                            
+                    </div>
+                    
+
+                        
+                            
+    <div class="tocbot"></div>
+
+
+
+
+
+                                
+
+                                    <div class="article-entry" itemprop="articleBody">
+                                        
+
+
+                                            
+
+                                                
+                                                                    <h1 id="let、with、run、apply、also"><a href="#let、with、run、apply、also" class="headerlink" title="let、with、run、apply、also"></a>let、with、run、apply、also</h1><p>Kotlin 标准库包含几个函数，它们的唯一目的是在对象的上下文中执行代码块。当对一个对象调用这样的函数并提供一个 lambda 表达式时，它会形成一个临时作用域。在此作用域中，可以访问该对象而无需其名称。这些函数称为作用域函数。共有以下五种：let、run、with、apply 以及 also。</p>
+<a id="more"></a>
+
+<table>
+<thead>
+<tr>
+<th>函数名</th>
+<th>定义inline的结构</th>
+<th>函数体内使用的对象</th>
+<th>返回值</th>
+<th>是否是扩展函数</th>
+<th>适用的场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>let</td>
+<td>fun &lt;T, R&gt; T.let(block: (T) -&gt; R): R = block(this)</td>
+<td>it指代当前对象</td>
+<td>闭包形式返回</td>
+<td>是</td>
+<td>适用于处理不为null的操作场景</td>
+</tr>
+<tr>
+<td>with</td>
+<td>fun &lt;T, R&gt; with(receiver: T, block: T.() -&gt; R): R = receiver.block()</td>
+<td>this指代当前对象或者省略</td>
+<td>闭包形式返回</td>
+<td>否</td>
+<td>适用于调用同一个类的多个方法时，可以省去类名重复，直接调用类的方法即可，经常用于Android中RecyclerView中onBinderViewHolder中，数据model的属性映射到UI上</td>
+</tr>
+<tr>
+<td>run</td>
+<td>fun &lt;T, R&gt; T.run(block: T.() -&gt; R): R = block()</td>
+<td>this指代当前对象或者省略</td>
+<td>闭包形式返回</td>
+<td>是</td>
+<td>适用于let,with函数任何场景。</td>
+</tr>
+<tr>
+<td>apply</td>
+<td>fun T.apply(block: T.() -&gt; Unit): T { block(); return this }</td>
+<td>this指代当前对象或者省略</td>
+<td>返回this</td>
+<td>是</td>
+<td>1、适用于run函数的任何场景，一般用于初始化一个对象实例的时候，操作对象属性，并最终返回这个对象。</td>
+</tr>
+<tr>
+<td>2、动态inflate出一个XML的View的时候需要给View绑定数据也会用到.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3、一般可用于多个扩展函数链式调用</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>4、数据model多层级包裹判空处理的问题</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>also</td>
+<td>fun T.also(block: (T) -&gt; Unit): T { block(this); return this }</td>
+<td>it指代当前对象</td>
+<td>返回this</td>
+<td>是</td>
+<td>适用于let函数的任何场景，一般可用于多个扩展函数链式调用</td>
+</tr>
+</tbody></table>
+<h1 id="takeIf-与-takeUnless"><a href="#takeIf-与-takeUnless" class="headerlink" title="takeIf 与 takeUnless"></a>takeIf 与 takeUnless</h1><p>除了作用域函数外，标准库还包含函数 takeIf 及 takeUnless。这俩函数使你可以将对象状态检查嵌入到调用链中。</p>
+<p>当以提供的谓词在对象上进行调用时，若该对象与谓词匹配，则 takeIf 返回此对象。否则返回 null。因此，takeIf 是单个对象的过滤函数。反之，takeUnless如果不匹配谓词，则返回对象，如果匹配则返回 null。该对象作为 lambda 表达式参数（it）来访问。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> number = Random.nextInt(<span class="number">100</span>)</span><br><span class="line">​</span><br><span class="line"><span class="keyword">val</span> evenOrNull = number.takeIf &#123; it % <span class="number">2</span> == <span class="number">0</span> &#125;</span><br><span class="line"><span class="keyword">val</span> oddOrNull = number.takeUnless &#123; it % <span class="number">2</span> == <span class="number">0</span> &#125;</span><br><span class="line">println(<span class="string">"even: <span class="variable">$evenOrNull</span>, odd: <span class="variable">$oddOrNull</span>"</span>)</span><br></pre></td></tr></table></figure>
+
+<p>当在 takeIf 及 takeUnless 之后链式调用其他函数，不要忘记执行空检查或安全调用（?.），因为他们的返回值是可为空的。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> str = <span class="string">"Hello"</span></span><br><span class="line"><span class="keyword">val</span> caps = str.takeIf &#123; it.isNotEmpty() &#125;?.toUpperCase()</span><br><span class="line"><span class="comment">//val caps = str.takeIf &#123; it.isNotEmpty() &#125;.toUpperCase() // 编译错误</span></span><br><span class="line">println(caps)</span><br></pre></td></tr></table></figure>
+
+<p>takeIf 及 takeUnless 与作用域函数一起特别有用。 一个很好的例子是用 let 链接它们，以便在与给定谓词匹配的对象上运行代码块。 为此，请在对象上调用 takeIf，然后通过安全调用（?.）调用 let。对于与谓词不匹配的对象，takeIf 返回 null，并且不调用 let。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">displaySubstringPosition</span><span class="params">(input: <span class="type">String</span>, sub: <span class="type">String</span>)</span></span> &#123;</span><br><span class="line">    input.indexOf(sub).takeIf &#123; it &gt;= <span class="number">0</span> &#125;?.let &#123;</span><br><span class="line">        println(<span class="string">"The substring <span class="variable">$sub</span> is found in <span class="variable">$input</span>."</span>)</span><br><span class="line">        println(<span class="string">"Its start position is <span class="variable">$it</span>."</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">​</span><br><span class="line">displaySubstringPosition(<span class="string">"010000011"</span>, <span class="string">"11"</span>)</span><br><span class="line">displaySubstringPosition(<span class="string">"010000011"</span>, <span class="string">"12"</span>)</span><br></pre></td></tr></table></figure>
+
+<p>没有标准库函数时，相同的函数看起来是这样的：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">displaySubstringPosition</span><span class="params">(input: <span class="type">String</span>, sub: <span class="type">String</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> index = input.indexOf(sub)</span><br><span class="line">    <span class="keyword">if</span> (index &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">        println(<span class="string">"The substring <span class="variable">$sub</span> is found in <span class="variable">$input</span>."</span>)</span><br><span class="line">        println(<span class="string">"Its start position is <span class="variable">$index</span>."</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">​</span><br><span class="line">displaySubstringPosition(<span class="string">"010000011"</span>, <span class="string">"11"</span>)</span><br><span class="line">displaySubstringPosition(<span class="string">"010000011"</span>, <span class="string">"12"</span>)</span><br></pre></td></tr></table></figure>
+
+                                                                        
+                                    </div>
+                                    <footer class="article-footer">
+                                        <a data-url="http://only52607.github.io/2020/05/10/Kotlin%E4%B8%AD%E7%9A%84%E4%BD%9C%E7%94%A8%E5%9F%9F%E5%87%BD%E6%95%B0/" data-id="cka0rsrdg00000gu14v4gdlh1" class="article-share-link">
+                                            Share
+                                        </a>
+                                        
+                                    </footer>
+
+    </div>
+
+    
+        
+
+            
+
+                
+                    
+                        
+                            
+
+</article>
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2020 OOOOONLY</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="OOOOONLY"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/gallery">Gallery</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>
